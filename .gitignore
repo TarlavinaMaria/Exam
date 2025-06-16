@@ -1,0 +1,33 @@
+# Unity временные файлы
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Автогенерируемые файлы
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# Двоичные файлы
+*.dll
+*.exe
+*.pdb
+*.mdb
+
+# Asset-файлы (если не храните их в Git)
+/[Aa]ssets/AssetStoreTools*
+/[Aa]ssets/TextMesh* Pro
+
+# Настройки IDE
+.vs/
+.idea/
