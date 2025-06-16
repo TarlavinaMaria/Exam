@@ -23,7 +23,7 @@ public class Spawner : MonoBehaviour
             Instantiate(_prefabResurs,
                 new Vector3(
                     Random.Range(_startPointSpawnPosition.position.x, _endPointSpawnPosition.position.x),
-                    2,
+                    1,
                     Random.Range(_startPointSpawnPosition.position.z, _endPointSpawnPosition.position.z)),
                     Quaternion.identity,
                     _container);
