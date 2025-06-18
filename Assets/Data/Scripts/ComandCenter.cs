@@ -10,6 +10,7 @@ public class ComandCenter : MonoBehaviour
     [SerializeField] private Transform _spawnPositionDron; // Позиция спавна дронов
     [SerializeField] private Transform _droneConteiner; // Контейнер для дронов
     [SerializeField] private List<Resurs> _storage = new List<Resurs>(); // Список для хранения ресурсов на командном центре
+    [SerializeField] private ResursCounter _resursCounter;
 
     // Переменные
     private Queue<Resurs> _resursers = new Queue<Resurs>(); // Очередь для хранения ресурсов, которые будут обрабатываться дронами
@@ -32,6 +33,7 @@ public class ComandCenter : MonoBehaviour
         {
             CreateDrons(); // Создаем дрон, если его еще нет
             _isHaveDrone = true; // Устанавливаем флаг, что дрон уже создан
+
             _tempDrone.TakeScanner(_scaner); // Передаем сканер дрону для обнаружения ресурсов
             _tempDrone.TakeResurserQueue(_resursers); // Передаем очередь ресурсов дрону
         }
@@ -61,23 +63,24 @@ public class ComandCenter : MonoBehaviour
     {
         _storage.Add(resurs); // Добавляем ресурс в список хранения
         Debug.Log($"Поступили ресурсы! На базе {_storage.Count} ресурсов");
+        _resursCounter.AddResurs();
 
-        // Если количество ресурсов кратно 3, создаем нового дрона
-        if (_storage.Count % 3 == 0)
-        {
-            // Создаем нового дрона по аналогии с использованием префаба
-            Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
-            newDrone.TakePositionComandCenter(this.transform);
-            newDrone.TakePatrulPoint(_patrulPoint);
-            newDrone.TakeCommandCenter(this);
-            newDrone.TakeScanner(_scaner);
-            newDrone.TakeResurserQueue(_resursers);
-            _drons.Enqueue(newDrone);
+        //// Если количество ресурсов кратно 3, создаем нового дрона
+        //if (_storage.Count % 3 == 0)
+        //{
+        //    // Создаем нового дрона по аналогии с использованием префаба
+        //    Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
+        //    newDrone.TakePositionComandCenter(this.transform);
+        //    newDrone.TakePatrulPoint(_patrulPoint);
+        //    newDrone.TakeCommandCenter(this);
+        //    newDrone.TakeScanner(_scaner);
+        //    newDrone.TakeResurserQueue(_resursers);
+        //    _drons.Enqueue(newDrone);
 
-            // Удаляем 3 ресурса, использованные на создание
-            _storage.RemoveRange(_storage.Count - 3, 3);
+        //    // Удаляем 3 ресурса, использованные на создание
+        //    _storage.RemoveRange(_storage.Count - 3, 3);
 
-            Debug.Log("Создан новый дрон!");
-        }
+        //    Debug.Log("Создан новый дрон!");
+        //}
     }
 }
