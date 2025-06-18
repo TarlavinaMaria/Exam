@@ -1,11 +1,9 @@
 using UnityEngine;
 
-
-
 public class BuildingNewBase : MonoBehaviour
 {
     [SerializeField] private Camera _camera;
-    [SerializeField] private ComandCenter _comandCenter;
+    [SerializeField] private ComandCenter _prefabComandCenter;
     [SerializeField] private Transform _containerBase;
     [SerializeField] private float _scaneRadius;
 
@@ -19,14 +17,13 @@ public class BuildingNewBase : MonoBehaviour
     private MeshRenderer _meshRenderer;
 
     private bool _isHaveBuildBase = false;
-    private bool _isChangeColor = false;
 
     private void Update()
     {
         _ray = _camera.ScreenPointToRay(Input.mousePosition);
         Physics.Raycast(_ray, out _raycastHit);
 
-        Debug.DrawRay(_ray.origin, _ray.direction * 1000);
+        Debug.DrawRay(_ray.origin, _ray.direction * 100);
         SelectionBase();
         BuildBase();
     }
@@ -34,7 +31,7 @@ public class BuildingNewBase : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && !_isHaveBuildBase)
         {
-            if (Physics.Raycast(_ray, out _raycastHit))
+            if (_raycastHit.transform.TryGetComponent<ComandCenter>(out ComandCenter center))
             {
                 _isHaveBuildBase = true;
             }
@@ -47,41 +44,49 @@ public class BuildingNewBase : MonoBehaviour
                 _isHaveBuildBase = false;
             }
         }
+        else if (Input.GetMouseButtonDown(0) && _isHaveBuildBase && !IsCollated())
+        {
+            _tempComandCenter = null;
+            _isHaveBuildBase = false;
+        }
 
     }
 
     public void BuildBase()
     {
-        Debug.Log("1");
         if (_isHaveBuildBase && _tempComandCenter == null)
         {
-            _tempComandCenter = Instantiate(_comandCenter);
-            Debug.Log("База создалась");
+            _tempComandCenter = Instantiate(_prefabComandCenter);
+            _tempComandCenter.SetLayer();
         }
         else if (_tempComandCenter != null)
         {
             _tempComandCenter.transform.position = new Vector3(_raycastHit.point.x, 1, _raycastHit.point.z);
+        }
 
-            Collider[] triggerColliders = Physics.OverlapSphere(_raycastHit.point, _scaneRadius); // Получаем все коллайдеры в радиусе сканирования
+        if (IsCollated() && _tempComandCenter != null)
+        {
+            _tempComandCenter.ChangeColor(_colorCantBuld);
+        }
+        else if (_tempComandCenter != null)
+        {
+            _tempComandCenter.ChangeColor(_colorCanBuld);
+        }
+    }
+    private bool IsCollated()
+    {
+        Collider[] triggerColliders = Physics.OverlapSphere(_raycastHit.point, _scaneRadius); // Получаем все коллайдеры в радиусе сканирования
 
-            foreach (Collider collider in triggerColliders) // Проходим по каждому коллайдеру
+        foreach (Collider collider in triggerColliders) // Проходим по каждому коллайдеру
+        {
+            if (collider.gameObject.TryGetComponent<ComandCenter>(out ComandCenter center)) // Проверяем, является ли объект ресурсом
             {
-                Debug.Log("2");
-                if (collider.gameObject.TryGetComponent<ComandCenter>(out ComandCenter center)) // Проверяем, является ли объект ресурсом
+                if (_tempComandCenter != center)
                 {
-                    _isChangeColor = true;
-                    Debug.Log("База!");
+                    return true;
                 }
             }
         }
-        //if (_isChangeColor)
-        //{
-        //    _tempComandCenter.ChangeColor(_colorCantBuld);
-        //}
-        //else
-        //{
-        //    _tempComandCenter.ChangeColor(_colorCanBuld);
-        //}
+        return false;
     }
-
 }

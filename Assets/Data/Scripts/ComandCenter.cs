@@ -19,12 +19,15 @@ public class ComandCenter : MonoBehaviour
     private Queue<Drone> _drons = new Queue<Drone>(); // Очередь для хранения дронов, которые будут выполнять задачи
     private Drone _tempDrone; // Временный дрон для обработки задач
     private MeshRenderer _meshRenderer;
+    private LayerMask _layerMask = 6;
+
     // Флаги
     private bool _isHaveDrone = false; // Флаг, указывающий, есть ли уже дрон на базе
     private bool _isBilding = false;
     private void Awake()
     {
         _meshRenderer = GetComponent<MeshRenderer>();
+
     }
     private void Update() // Метод Update вызывается каждый кадр
     {
@@ -99,6 +102,12 @@ public class ComandCenter : MonoBehaviour
     }
     public void ChangeColor(Color color)
     {
-        _meshRenderer.material.color = color;
+        Material material = _meshRenderer.material;
+        material.color = color;
+        _meshRenderer.material = material;
+    }
+    public void SetLayer()
+    {
+        transform.gameObject.layer = 0;
     }
 }

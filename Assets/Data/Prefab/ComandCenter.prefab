@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 799579271250308657}
   - component: {fileID: 3366303240971198074}
   - component: {fileID: 1903801778156478139}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82,7 +82,7 @@ GameObject:
   - component: {fileID: 9116151414033735977}
   - component: {fileID: 8069576068356595674}
   - component: {fileID: 7249982468989421495}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ComandCenter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,8 +216,6 @@ MonoBehaviour:
   _droneConteiner: {fileID: 0}
   _storage: []
   _resursCounter: {fileID: 7249982468989421495}
-  _colorCantBuld: {r: 0.754717, g: 0.12459949, b: 0.12459949, a: 0}
-  _colorCanBuld: {r: 0.17976068, g: 0.764151, b: 0.10453011, a: 0}
 --- !u!114 &8069576068356595674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +251,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2831787996729205324}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PointPantrul
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -290,7 +288,7 @@ GameObject:
   - component: {fileID: 7674639209741963371}
   - component: {fileID: 8048166070526637774}
   - component: {fileID: 806132016054115018}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (Legacy)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -372,7 +370,7 @@ GameObject:
   - component: {fileID: 258874013159568798}
   - component: {fileID: 117884045440012271}
   - component: {fileID: 1382206154776021650}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -473,7 +471,7 @@ GameObject:
   - component: {fileID: 3402057304673028539}
   - component: {fileID: 7126767557141604166}
   - component: {fileID: 2004515691282393206}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -539,7 +537,7 @@ GameObject:
   - component: {fileID: 1208125370099799547}
   - component: {fileID: 7663321450018312568}
   - component: {fileID: 824679350560740775}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -605,7 +603,7 @@ GameObject:
   - component: {fileID: 5245551139443510428}
   - component: {fileID: 5623946270655268996}
   - component: {fileID: 365132441786848215}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
