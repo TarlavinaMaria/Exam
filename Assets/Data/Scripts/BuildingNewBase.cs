@@ -61,17 +61,17 @@ public class BuildingNewBase : MonoBehaviour
         else if (_tempComandCenter != null)
         {
             _tempComandCenter.transform.position = new Vector3(_raycastHit.point.x, 1, _raycastHit.point.z);
-        }
 
-        Collider[] triggerColliders = Physics.OverlapSphere(transform.position, _scaneRadius); // Получаем все коллайдеры в радиусе сканирования
+            Collider[] triggerColliders = Physics.OverlapSphere(_raycastHit.point, _scaneRadius); // Получаем все коллайдеры в радиусе сканирования
 
-        foreach (Collider collider in triggerColliders) // Проходим по каждому коллайдеру
-        {
-            Debug.Log("2");
-            if (collider.gameObject.TryGetComponent<ComandCenter>(out ComandCenter center)) // Проверяем, является ли объект ресурсом
+            foreach (Collider collider in triggerColliders) // Проходим по каждому коллайдеру
             {
-                _isChangeColor = true;
-                Debug.Log("База!");
+                Debug.Log("2");
+                if (collider.gameObject.TryGetComponent<ComandCenter>(out ComandCenter center)) // Проверяем, является ли объект ресурсом
+                {
+                    _isChangeColor = true;
+                    Debug.Log("База!");
+                }
             }
         }
         //if (_isChangeColor)
