@@ -251,6 +251,7 @@ MonoBehaviour:
   _dronePrefab: {fileID: 181671494962462398, guid: 760112f7bf887434683857480076a814, type: 3}
   _spawnPositionDron: {fileID: 1129202658}
   _droneConteiner: {fileID: 1129202658}
+  _storage: []
 --- !u!114 &307914415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1089,7 +1090,7 @@ MonoBehaviour:
   _endPointSpawnPosition: {fileID: 1918944262}
   _container: {fileID: 775676495}
   _prefabResurs: {fileID: 7667464603575947784, guid: cade519cdcf8682478f4c201cbb1cdbc, type: 3}
-  _delay: 1
+  _delay: 4
 --- !u!1 &1474084829
 GameObject:
   m_ObjectHideFlags: 0
