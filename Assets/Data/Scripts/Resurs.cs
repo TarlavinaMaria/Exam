@@ -17,7 +17,7 @@ public class Resurs : MonoBehaviour
     }
     private IEnumerator AutoReset()
     {
-        yield return new WaitForSeconds(10f); // Ждём 10 секунд
+        yield return new WaitForSeconds(30f); // Ждём время до сброса
         IsIncludeFree = false;
     }
 }
