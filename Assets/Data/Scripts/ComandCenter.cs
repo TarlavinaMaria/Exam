@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MeshRenderer))]
+
 public class ComandCenter : MonoBehaviour
 {
     // Параметры
@@ -10,40 +12,52 @@ public class ComandCenter : MonoBehaviour
     [SerializeField] private Transform _spawnPositionDron; // Позиция спавна дронов
     [SerializeField] private Transform _droneConteiner; // Контейнер для дронов
     [SerializeField] private List<Resurs> _storage = new List<Resurs>(); // Список для хранения ресурсов на командном центре
-    [SerializeField] private ResursCounter _resursCounter;
+    [SerializeField] private ResursCounter _resursCounter; // 
 
     // Переменные
     private Queue<Resurs> _resursers = new Queue<Resurs>(); // Очередь для хранения ресурсов, которые будут обрабатываться дронами
     private Queue<Drone> _drons = new Queue<Drone>(); // Очередь для хранения дронов, которые будут выполнять задачи
     private Drone _tempDrone; // Временный дрон для обработки задач
-
+    private MeshRenderer _meshRenderer;
     // Флаги
     private bool _isHaveDrone = false; // Флаг, указывающий, есть ли уже дрон на базе
-
+    private bool _isBilding = false;
+    private void Awake()
+    {
+        _meshRenderer = GetComponent<MeshRenderer>();
+    }
     private void Update() // Метод Update вызывается каждый кадр
     {
-        // Проверяем нажатие клавиши Space для сканирования ресурсов
-        if (Input.GetKeyDown(KeyCode.Space))
+        //Если база построена
+        if (_isBilding)
         {
-            Debug.Log(_scaner.Scane(_resursers).Count);
-            //_scaner.Scane(_resursers);
-        }
-        // Проверяем нажатие клавиши E для создания дрона, если его еще нет
-        if (Input.GetKeyDown(KeyCode.E) && _isHaveDrone == false)
-        {
-            CreateDrons(); // Создаем дрон, если его еще нет
-            _isHaveDrone = true; // Устанавливаем флаг, что дрон уже создан
-
-            _tempDrone.TakeScanner(_scaner); // Передаем сканер дрону для обнаружения ресурсов
-            _tempDrone.TakeResurserQueue(_resursers); // Передаем очередь ресурсов дрону
-        }
-        // Проверяем, есть ли дроны и ресурсы для отправки
-        if (_drons.Count > 0)
-        {
-            if (_resursers.Count > 0)
+            // Проверяем нажатие клавиши Space для сканирования ресурсов
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                SentDron(); // Отправляем дрон к ресурсу
+                Debug.Log(_scaner.Scane(_resursers).Count);
+                //_scaner.Scane(_resursers);
             }
+            // Проверяем нажатие клавиши E для создания дрона, если его еще нет
+            if (Input.GetKeyDown(KeyCode.E) && _isHaveDrone == false)
+            {
+                CreateDrons(); // Создаем дрон, если его еще нет
+                _isHaveDrone = true; // Устанавливаем флаг, что дрон уже создан
+
+                _tempDrone.TakeScanner(_scaner); // Передаем сканер дрону для обнаружения ресурсов
+                _tempDrone.TakeResurserQueue(_resursers); // Передаем очередь ресурсов дрону
+            }
+            // Проверяем, есть ли дроны и ресурсы для отправки
+            if (_drons.Count > 0)
+            {
+                if (_resursers.Count > 0)
+                {
+                    SentDron(); // Отправляем дрон к ресурсу
+                }
+            }
+        }
+        else
+        {
+            //_buldingNewBase.BuildBase();
         }
     }
     private void SentDron() // Метод для отправки дрона к ресурсу
@@ -82,5 +96,9 @@ public class ComandCenter : MonoBehaviour
 
         //    Debug.Log("Создан новый дрон!");
         //}
+    }
+    public void ChangeColor(Color color)
+    {
+        _meshRenderer.material.color = color;
     }
 }
