@@ -61,5 +61,23 @@ public class ComandCenter : MonoBehaviour
     {
         _storage.Add(resurs); // Добавляем ресурс в список хранения
         Debug.Log($"Поступили ресурсы! На базе {_storage.Count} ресурсов");
+
+        // Если количество ресурсов кратно 3, создаем нового дрона
+        if (_storage.Count % 3 == 0)
+        {
+            // Создаем нового дрона по аналогии с использованием префаба
+            Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
+            newDrone.TakePositionComandCenter(this.transform);
+            newDrone.TakePatrulPoint(_patrulPoint);
+            newDrone.TakeCommandCenter(this);
+            newDrone.TakeScanner(_scaner);
+            newDrone.TakeResurserQueue(_resursers);
+            _drons.Enqueue(newDrone);
+
+            // Удаляем 3 ресурса, использованные на создание
+            _storage.RemoveRange(_storage.Count - 3, 3);
+
+            Debug.Log("Создан новый дрон!");
+        }
     }
 }
