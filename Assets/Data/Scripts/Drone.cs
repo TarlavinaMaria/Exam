@@ -26,11 +26,11 @@ public class Drone : MonoBehaviour
     private List<Resurs> _cargo;
     private ComandCenter _targetBase;
 
-    private void Update() // Метод Update вызывается каждый кадр
+    private void Update()
     {
         if (_isReady)
         {
-            //  1. Если несёт ресурсы на новую базу
+            // 1. Несёт ресурсы на новую базу
             if (_haveResurs && _targetBase != null)
             {
                 MoveToTarget(_targetBase.transform);
@@ -45,13 +45,24 @@ public class Drone : MonoBehaviour
                     _haveResurs = false;
 
                     TakeCommandCenter(_targetBase);
+                    TakeScanner(_scaner); // ← если переопределялся
+                    TakeResurserQueue(_resursers);
+                    TakePositionComandCenter(_targetBase.transform);
+
                     _targetBase = null;
                 }
             }
-
-            //  2. Если есть активная цель (например, ресурс)
+            // 2. Есть активная цель (ресурс)
             else if (_isHaveTarget)
             {
+                if (_target == null || !_target.gameObject.activeInHierarchy)
+                {
+                    Debug.LogWarning($"{name}: цель недействительна");
+                    _isHaveTarget = false;
+                    _target = null;
+                    return;
+                }
+
                 MoveToTarget(_target);
 
                 if (Vector3.Distance(transform.position, _target.position) < 0.5f)
@@ -66,17 +77,21 @@ public class Drone : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning($"{name}: цель {_target.name} не содержит компонент Resurs");
+                        Debug.LogWarning($"{name}: цель {_target.name} не содержит Resurs");
                         _isHaveTarget = false;
                         _target = null;
                     }
-
                 }
             }
-
-            //  Если несёт ресурс на свою базу
+            // 3. Несёт ресурс на свою базу
             else if (_haveResurs)
             {
+                if (_comandCenterPoint == null)
+                {
+                    Debug.LogError($"{name}: _comandCenterPoint отсутствует!");
+                    return;
+                }
+
                 MoveToTarget(_comandCenterPoint);
 
                 if (Vector3.Distance(transform.position, _comandCenterPoint.position) < 0.5f && !_isWaiting)
@@ -88,9 +103,8 @@ public class Drone : MonoBehaviour
                     StartCoroutine(AfterDelivery());
                 }
             }
-
-            //  Иначе ищем ресурсы
-            else
+            // 4. Пытаемся найти ресурсы
+            else if (!_isHaveTarget && !_haveResurs && !_isWaiting)
             {
                 _scaner.Scane(_resursers);
 
@@ -102,19 +116,27 @@ public class Drone : MonoBehaviour
                         TakeTarget(next.transform);
                         break;
                     }
-                    else
-                    {
-                        Debug.LogWarning($"{name}: пропускаю недоступный ресурс в AfterDelivery()");
-                    }
+                }
+
+                // Переход к патрулированию, если ничего не нашли
+                if (!_isHaveTarget)
+                {
+                    FreeMove();
                 }
             }
+            // 5. Ожидаем — или патрулируем
+            else
+            {
+                FreeMove();
+            }
         }
+        // Если дрон ещё не готов — просто патрулируем
         else
         {
-            FreeMove(); // патрулируем
+            FreeMove();
         }
-
     }
+
     private IEnumerator AfterDelivery() // Метод для ожидания после доставки ресурса
     {
         _isWaiting = true; // Устанавливаем флаг ожидания
@@ -202,7 +224,7 @@ public class Drone : MonoBehaviour
     {
         _comandCenter = commandCenter; // Устанавливает ссылку на командный центр, к которому принадлежит дрон
     }
-    public void DeliverResursesToBase(List<Resurs> cargo, ComandCenter target, Transform[] patrol)
+    public void DeliverResursesToBase(List<Resurs> cargo, ComandCenter target, Transform[] patrol, Scaner scaner, Queue<Resurs> resQueue)
     {
         _cargo = cargo;
         _targetBase = target;
@@ -210,9 +232,13 @@ public class Drone : MonoBehaviour
         TakePatrulPoint(patrol);
         TakeCommandCenter(target);
         TakeTarget(target.transform);
+        TakeScanner(scaner);
+        TakeResurserQueue(resQueue);
 
         _isHaveTarget = true;
         _haveResurs = true;
+
+        TakePositionComandCenter(target.transform);
 
         Debug.Log($"[Снабжение] Дрон готов: цель — {_targetBase.name}, ресурсов: {_cargo.Count}");
     }

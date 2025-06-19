@@ -85,7 +85,8 @@ public class ComandCenter : MonoBehaviour
                 // Создаём одного дрона-поставщика
                 Drone supplierDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
                 supplierDrone.TakeCommandCenter(_nextBaseTarget);
-                supplierDrone.DeliverResursesToBase(supply, _nextBaseTarget, _patrulPoint);
+                supplierDrone.DeliverResursesToBase(supply, _nextBaseTarget, _patrulPoint, _scaner, _resursers);
+
 
                 Debug.Log("Отправлены ресурсы на новую базу!");
             }

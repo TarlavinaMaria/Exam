@@ -13,14 +13,12 @@ public class Scaner : MonoBehaviour
         {
             if (collider.gameObject.TryGetComponent<Resurs>(out Resurs resurs)) // Проверяем, является ли объект ресурсом
             {
-                if (!resurses.Contains(resurs)) // Проверяем, находится ли ресурс уже в очереди
+                if (!resurses.Contains(resurs) && !resurs.IsIncludeFree)
                 {
-                    if (!resurs.IsIncludeFree) // Проверяем, не включен ли ресурс уже в обработку
-                    {
-                        resurs.SetInclude(); // Устанавливаем ресурс как включенный в обработку
-                        resurses.Enqueue(resurs); // Добавляем ресурс в очередь для обработки
-                    }
+                    resurs.SetInclude(); // помечаем как занято
+                    resurses.Enqueue(resurs);
                 }
+
             }
         }
 
