@@ -23,19 +23,22 @@ public class BuildingNewBase : MonoBehaviour
         _ray = _camera.ScreenPointToRay(Input.mousePosition);
         Physics.Raycast(_ray, out _raycastHit);
 
-        Debug.DrawRay(_ray.origin, _ray.direction * 100);
+        Debug.DrawRay(_ray.origin, _ray.direction * 1000);
         SelectionBase();
         BuildBase();
     }
     private void SelectionBase()
     {
-        if (Input.GetMouseButtonDown(0) && !_isHaveBuildBase)
+        // КЛИК ПО СТАРОЙ БАЗЕ — взять шаблон
+        if (!_isHaveBuildBase && Input.GetMouseButtonDown(0))
         {
             if (_raycastHit.transform.TryGetComponent<ComandCenter>(out ComandCenter center))
             {
                 _isHaveBuildBase = true;
             }
         }
+
+        // ПКМ — отменить
         else if (Input.GetMouseButtonDown(1))
         {
             if (_tempComandCenter != null)
@@ -44,14 +47,34 @@ public class BuildingNewBase : MonoBehaviour
                 _isHaveBuildBase = false;
             }
         }
-        else if (Input.GetMouseButtonDown(0) && _isHaveBuildBase && !IsCollated())
+
+        // Второй ЛКМ — разместить шаблон, если нет коллизий
+        else if (_isHaveBuildBase && Input.GetMouseButtonDown(0) && !IsCollated())
         {
-            _tempComandCenter = null;
-            _isHaveBuildBase = false;
+            if (_tempComandCenter != null)
+            {
+                ComandCenter[] allBases = FindObjectsOfType<ComandCenter>();
+                foreach (var baseCandidate in allBases)
+                {
+                    if (baseCandidate != _tempComandCenter && baseCandidate.IsActive)
+                    {
+                        if (baseCandidate.HasOnlyOneDrone())
+                        {
+                            Debug.Log("Нельзя строить базу — на старой базе всего один дрон!");
+                            return;
+                        }
+
+                        baseCandidate.SendSupplyTo(_tempComandCenter);
+                        break;
+                    }
+                }
+
+                _tempComandCenter.Builded();
+                _tempComandCenter = null;
+                _isHaveBuildBase = false;
+            }
         }
-
     }
-
     public void BuildBase()
     {
         if (_isHaveBuildBase && _tempComandCenter == null)
@@ -89,4 +112,5 @@ public class BuildingNewBase : MonoBehaviour
         }
         return false;
     }
+
 }

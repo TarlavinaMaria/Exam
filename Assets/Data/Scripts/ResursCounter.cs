@@ -10,4 +10,11 @@ public class ResursCounter : MonoBehaviour
         _resursCounter++;
         _drowCounter.DrowCountResurs(_resursCounter);
     }
+    public void RemoveResurs(int count)
+    {
+        _resursCounter -= count;
+        if (_resursCounter < 0) _resursCounter = 0;
+        _drowCounter.DrowCountResurs(_resursCounter);
+    }
+
 }

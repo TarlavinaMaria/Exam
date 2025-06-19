@@ -23,64 +23,97 @@ public class Drone : MonoBehaviour
     private bool _isHaveTarget = false; // Флаг, указывающий, есть ли у дрона цель для движения
     private bool _haveResurs = false; // Флаг, указывающий, несет ли дрон ресурс
     private bool _isWaiting = false; // Флаг, указывающий, ждет ли дрон выполнения каких-либо действий
-
+    private List<Resurs> _cargo;
+    private ComandCenter _targetBase;
 
     private void Update() // Метод Update вызывается каждый кадр
     {
-        // Если дрон готов
-        if (_isReady == true)
+        if (_isReady)
         {
-            // Если есть цель
-            if (_isHaveTarget == true)
+            //  1. Если несёт ресурсы на новую базу
+            if (_haveResurs && _targetBase != null)
             {
-                // Если есть цель, двигается к цели
-                MoveToTarget(_target);
+                MoveToTarget(_targetBase.transform);
+                Debug.Log("Дрон снабжения движется к новой базе!");
 
-                // Только если дрон близко к ресурсу
-                if (Vector3.Distance(transform.position, _target.position) < 0.5f)
+                if (Vector3.Distance(transform.position, _targetBase.transform.position) < 0.5f)
                 {
-                    _carriedResurs = _target.GetComponent<Resurs>(); // Получаем компонент ресурса из цели
-                    _carriedResurs.gameObject.SetActive(false); // Делаем ресурс невидимым
-                    _haveResurs = true; // Устанавливаем флаг, что дрон несет ресурс
-                    _isHaveTarget = false; // Сбрасываем флаг наличия цели
+                    foreach (var res in _cargo)
+                        _targetBase.StoreResurs(res);
+
+                    _cargo = null;
+                    _haveResurs = false;
+
+                    TakeCommandCenter(_targetBase);
+                    _targetBase = null;
                 }
             }
-            else
+
+            //  2. Если есть активная цель (например, ресурс)
+            else if (_isHaveTarget)
             {
-                // Если цели нет, проверяет, несет ли дрон ресурс
-                if (_haveResurs == true)
+                MoveToTarget(_target);
+
+                if (Vector3.Distance(transform.position, _target.position) < 0.5f)
                 {
-                    MoveToTarget(_comandCenterPoint); // Двигается к командному центру
+                    _carriedResurs = _target.GetComponent<Resurs>();
 
-                    // Если дрон близко к командному центру
-                    if (Vector3.Distance(transform.position, _comandCenterPoint.position) < 0.5f && !_isWaiting)
+                    if (_carriedResurs != null)
                     {
-                        // Если несет ресурс, двигается к командному центру
-                        _comandCenter.StoreResurs(_carriedResurs); // Отправляем ресурс в командный центр
-                        _carriedResurs = null; // Сбрасываем переменную ресурса
-                        _haveResurs = false; // Сбрасываем флаг, что дрон несет ресурс
-
-                        StartCoroutine(AfterDelivery()); // Подождать 2 секунды на базе
-                    }
-                }
-                else
-                {
-                    _scaner.Scane(_resursers); // Сканирует ресурсы в радиусе действия
-
-                    if (_resursers.Count > 0)
-                    {
-                        _nextResurs = _resursers.Dequeue(); // Извлекает следующий ресурс из очереди
-                        TakeTarget(_nextResurs.transform); // Устанавливает цель для дрона
+                        _carriedResurs.gameObject.SetActive(false);
+                        _haveResurs = true;
+                        _isHaveTarget = false;
                     }
                     else
                     {
-                        // Если нет ресурсов, дрон патрулирует
-                        FreeMove();
+                        Debug.LogWarning($"{name}: цель {_target.name} не содержит компонент Resurs");
+                        _isHaveTarget = false;
+                        _target = null;
                     }
 
                 }
             }
+
+            //  Если несёт ресурс на свою базу
+            else if (_haveResurs)
+            {
+                MoveToTarget(_comandCenterPoint);
+
+                if (Vector3.Distance(transform.position, _comandCenterPoint.position) < 0.5f && !_isWaiting)
+                {
+                    _comandCenter.StoreResurs(_carriedResurs);
+                    _carriedResurs = null;
+                    _haveResurs = false;
+
+                    StartCoroutine(AfterDelivery());
+                }
+            }
+
+            //  Иначе ищем ресурсы
+            else
+            {
+                _scaner.Scane(_resursers);
+
+                while (_resursers.Count > 0)
+                {
+                    Resurs next = _resursers.Dequeue();
+                    if (next != null && next.gameObject.activeInHierarchy)
+                    {
+                        TakeTarget(next.transform);
+                        break;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"{name}: пропускаю недоступный ресурс в AfterDelivery()");
+                    }
+                }
+            }
         }
+        else
+        {
+            FreeMove(); // патрулируем
+        }
+
     }
     private IEnumerator AfterDelivery() // Метод для ожидания после доставки ресурса
     {
@@ -90,9 +123,13 @@ public class Drone : MonoBehaviour
         // Проверяем, есть ли ресурсы после сканирования и извлекаем следующий ресурс
         _nextResurs = _scaner.Scane(_resursers).Count > 0 ? _resursers.Dequeue() : null;
 
-        if (_nextResurs != null) // Если есть следующий ресурс
+        if (_nextResurs != null)
         {
-            TakeTarget(_nextResurs.transform); // Устанавливаем его как цель
+            TakeTarget(_nextResurs.transform);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: извлечённый ресурс оказался null");
         }
 
         _isWaiting = false; // Сбрасываем флаг ожидания
@@ -115,7 +152,14 @@ public class Drone : MonoBehaviour
                 % _pointPatrul.Length — потом берём остаток от деления, 
                 чтобы вернуться к началу, когда достигнут конец массива
              */
-            _currentPoint = ++_currentPoint % _pointPatrul.Length;
+            if (_pointPatrul != null && _pointPatrul.Length > 0)
+            {
+                _currentPoint = ++_currentPoint % _pointPatrul.Length;
+            }
+            else
+            {
+                Debug.LogWarning($"Дрон {name} не получил точки патрулирования!");
+            }
         }
     }
 
@@ -133,11 +177,19 @@ public class Drone : MonoBehaviour
         _pointPatrul = pointPatrul; // Устанавливает точки патрулирования для дрона
         _isReady = true; // Устанавливает флаг готовности дрона
     }
-    public void TakeTarget(Transform tagret) // Метод для установки цели для дрона
+    public void TakeTarget(Transform target)
     {
-        _target = tagret; // Устанавливает цель для дрона
-        _isHaveTarget = true; // Устанавливает флаг наличия цели
+        if (target == null)
+        {
+            Debug.LogWarning($"{name}: Попытка установить null в качестве цели");
+            return;
+        }
+
+        _target = target;
+        _isHaveTarget = true;
+        Debug.Log($"{name}: Цель установлена — {target.name}");
     }
+
     public void TakeScanner(Scaner scaner) // Метод для установки сканера для дрона
     {
         _scaner = scaner; // Устанавливает сканер для обнаружения ресурсов
@@ -150,5 +202,21 @@ public class Drone : MonoBehaviour
     {
         _comandCenter = commandCenter; // Устанавливает ссылку на командный центр, к которому принадлежит дрон
     }
+    public void DeliverResursesToBase(List<Resurs> cargo, ComandCenter target, Transform[] patrol)
+    {
+        _cargo = cargo;
+        _targetBase = target;
+
+        TakePatrulPoint(patrol);
+        TakeCommandCenter(target);
+        TakeTarget(target.transform);
+
+        _isHaveTarget = true;
+        _haveResurs = true;
+
+        Debug.Log($"[Снабжение] Дрон готов: цель — {_targetBase.name}, ресурсов: {_cargo.Count}");
+    }
+
+
 
 }
