@@ -85,7 +85,13 @@ public class ComandCenter : MonoBehaviour
                 // Создаём одного дрона-поставщика
                 Drone supplierDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
                 supplierDrone.TakeCommandCenter(_nextBaseTarget);
-                supplierDrone.DeliverResursesToBase(supply, _nextBaseTarget, _patrulPoint, _scaner, _resursers);
+                supplierDrone.DeliverResursesToBase(
+    supply,
+    _nextBaseTarget,
+    _patrulPoint,
+    _nextBaseTarget.GetComponent<Scaner>(),
+    _nextBaseTarget.GetComponent<ComandCenter>().GetResQueue());
+
 
 
                 Debug.Log("Отправлены ресурсы на новую базу!");
@@ -118,7 +124,7 @@ public class ComandCenter : MonoBehaviour
         _resursCounter.AddResurs();
 
         // Если количество ресурсов кратно 3, создаем нового дрона
-        if (!_isSupplyingNextBase && _storage.Count % 3 == 0)
+        if (!_isSupplyingNextBase && _storage.Count >= 3)
         {
             // Создаем нового дрона по аналогии с использованием префаба
             Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
@@ -168,6 +174,18 @@ public class ComandCenter : MonoBehaviour
     {
         return _totalDrones <= 1;
     }
+    public Queue<Resurs> GetResQueue()
+    {
+        return _resursers;
+    }
+    public Scaner Scaner
+    {
+        get
+        {
+            return _scaner;
+        }
+    }
+
 
 
 

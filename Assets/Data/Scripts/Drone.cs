@@ -203,7 +203,13 @@ public class Drone : MonoBehaviour
     {
         if (target == null)
         {
-            Debug.LogWarning($"{name}: Попытка установить null в качестве цели");
+            Debug.LogWarning($"{name}: Попытка назначить null как цель");
+            return;
+        }
+
+        if (target.GetComponent<Resurs>() == null)
+        {
+            Debug.LogWarning($"{name}: Попытка назначить цель {target.name}, но она не Resurs");
             return;
         }
 
@@ -211,6 +217,7 @@ public class Drone : MonoBehaviour
         _isHaveTarget = true;
         Debug.Log($"{name}: Цель установлена — {target.name}");
     }
+
 
     public void TakeScanner(Scaner scaner) // Метод для установки сканера для дрона
     {
@@ -224,24 +231,29 @@ public class Drone : MonoBehaviour
     {
         _comandCenter = commandCenter; // Устанавливает ссылку на командный центр, к которому принадлежит дрон
     }
-    public void DeliverResursesToBase(List<Resurs> cargo, ComandCenter target, Transform[] patrol, Scaner scaner, Queue<Resurs> resQueue)
+    public void DeliverResursesToBase(
+    List<Resurs> cargo,
+    ComandCenter target,
+    Transform[] patrol,
+    Scaner scaner,
+    Queue<Resurs> resQueue)
     {
         _cargo = cargo;
         _targetBase = target;
 
         TakePatrulPoint(patrol);
         TakeCommandCenter(target);
-        TakeTarget(target.transform);
-        TakeScanner(scaner);
-        TakeResurserQueue(resQueue);
+        TakeScanner(scaner);              // 💡 Важно
+        TakeResurserQueue(resQueue);      // 💡 Важно
+        TakePositionComandCenter(target.transform);
 
+        TakeTarget(target.transform);
         _isHaveTarget = true;
         _haveResurs = true;
 
-        TakePositionComandCenter(target.transform);
-
         Debug.Log($"[Снабжение] Дрон готов: цель — {_targetBase.name}, ресурсов: {_cargo.Count}");
     }
+
 
 
 
