@@ -5,9 +5,9 @@ public class ResursCounter : MonoBehaviour
     [SerializeField] DrowCounter _drowCounter;
 
     private int _resursCounter = 0;
-    public void AddResurs()
+    public void AddResurs(int count = 1)
     {
-        _resursCounter++;
+        _resursCounter += count;
         _drowCounter.DrowCountResurs(_resursCounter);
     }
     public void RemoveResurs(int count)

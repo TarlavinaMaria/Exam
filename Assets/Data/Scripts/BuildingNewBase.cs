@@ -64,6 +64,7 @@ public class BuildingNewBase : MonoBehaviour
                             return;
                         }
 
+                        // Отправляем ровно 5 ресурсов
                         baseCandidate.SendSupplyTo(_tempComandCenter);
                         break;
                     }

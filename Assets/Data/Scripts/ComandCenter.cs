@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -86,11 +87,11 @@ public class ComandCenter : MonoBehaviour
                 Drone supplierDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
                 supplierDrone.TakeCommandCenter(_nextBaseTarget);
                 supplierDrone.DeliverResursesToBase(
-    supply,
-    _nextBaseTarget,
-    _patrulPoint,
-    _nextBaseTarget.GetComponent<Scaner>(),
-    _nextBaseTarget.GetComponent<ComandCenter>().GetResQueue());
+                    supply,
+                    _nextBaseTarget,
+                    _patrulPoint,
+                    _nextBaseTarget.GetComponent<Scaner>(),
+                    _nextBaseTarget.GetComponent<ComandCenter>().GetResQueue());
 
 
 
@@ -117,16 +118,38 @@ public class ComandCenter : MonoBehaviour
         _drons.Enqueue(_tempDrone); // Добавляем дрон в очередь дронов
         _totalDrones++;
     }
-    public void StoreResurs(Resurs resurs) // Метод для хранения ресурса в командном центре
+    // Для одиночного ресурса
+    public void StoreResurs(Resurs resurs)
     {
-        _storage.Add(resurs); // Добавляем ресурс в список хранения
-        Debug.Log($"Поступили ресурсы! На базе {_storage.Count} ресурсов");
+        if (resurs != null)
+        {
+            resurs.gameObject.SetActive(false);
+        }
+
+        _storage.Add(resurs);
         _resursCounter.AddResurs();
 
-        // Если количество ресурсов кратно 3, создаем нового дрона
         if (!_isSupplyingNextBase && _storage.Count >= 3)
         {
-            // Создаем нового дрона по аналогии с использованием префаба
+            CreateNewDrone();
+        }
+    }
+
+    // Для списка ресурсов
+    public void StoreResurs(List<Resurs> resources)
+    {
+        _storage.AddRange(resources);
+        _resursCounter.AddResurs(resources.Count);
+        Debug.Log($"Поступили ресурсы! На базе {_storage.Count} ресурсов");
+        CheckForNewDrone();
+    }
+
+    // Общая проверка для создания дронов
+    private void CheckForNewDrone()
+    {
+        if (!_isSupplyingNextBase && _storage.Count >= 3)
+        {
+            // Создаем нового дрона
             Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
             newDrone.TakePositionComandCenter(this.transform);
             newDrone.TakePatrulPoint(_patrulPoint);
@@ -136,8 +159,7 @@ public class ComandCenter : MonoBehaviour
             _drons.Enqueue(newDrone);
             _totalDrones++;
 
-
-            // Удаляем 3 ресурса, использованные на создание
+            // Удаляем 3 ресурса
             _storage.RemoveRange(_storage.Count - 3, 3);
             _resursCounter.RemoveResurs(3);
 
@@ -186,7 +208,65 @@ public class ComandCenter : MonoBehaviour
         }
     }
 
+    public void AddResurses(int count)
+    {
+        // Просто увеличиваем счетчик, не создавая реальные объекты Resurs
+        for (int i = 0; i < count; i++)
+        {
+            _storage.Add(null); // Добавляем null или можно создать пустой объект
+            _resursCounter.AddResurs();
+        }
 
+        Debug.Log($"Добавлено {count} ресурсов. Всего: {_storage.Count}");
 
+        // Проверяем возможность создания дрона
+        if (!_isSupplyingNextBase && _storage.Count >= 3)
+        {
+            CreateNewDrone();
+        }
+    }
+    public void ReceiveSupply(int resourceCount)
+    {
+        // Добавляем только количество ресурсов
+        for (int i = 0; i < resourceCount; i++)
+        {
+            _storage.Add(null); // Или можно создать пустой Resurs
+            _resursCounter.AddResurs();
+        }
+
+        Debug.Log($"Получено {resourceCount} ресурсов. Всего: {_storage.Count}");
+
+        CheckDroneCreation();
+    }
+
+    private void CheckDroneCreation()
+    {
+        // Проверяем без учёта флага поставки
+        if (_storage.Count >= 3)
+        {
+            CreateNewDrone();
+        }
+    }
+
+    private void CreateNewDrone()
+    {
+        if (_storage.Count < 3) return;
+
+        Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position,
+                                   Quaternion.identity, _droneConteiner);
+        newDrone.TakePositionComandCenter(transform);
+        newDrone.TakePatrulPoint(_patrulPoint);
+        newDrone.TakeCommandCenter(this);
+        newDrone.TakeScanner(_scaner);
+        newDrone.TakeResurserQueue(_resursers);
+        _drons.Enqueue(newDrone);
+        _totalDrones++;
+
+        // Удаляем ровно 3 ресурса
+        _storage.RemoveRange(_storage.Count - 3, 3);
+        _resursCounter.RemoveResurs(3);
+
+        Debug.Log("Создан новый дрон! Всего дронов: " + _totalDrones);
+    }
 
 }

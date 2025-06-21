@@ -25,32 +25,41 @@ public class Drone : MonoBehaviour
     private bool _isWaiting = false; // Флаг, указывающий, ждет ли дрон выполнения каких-либо действий
     private List<Resurs> _cargo;
     private ComandCenter _targetBase;
+    private bool _isSupplyDrone = false;
 
     private void Update()
     {
         if (_isReady)
         {
             // 1. Несёт ресурсы на новую базу
-            if (_haveResurs && _targetBase != null)
+            if (_isSupplyDrone && _haveResurs && _targetBase != null)
             {
                 MoveToTarget(_targetBase.transform);
-                Debug.Log("Дрон снабжения движется к новой базе!");
 
                 if (Vector3.Distance(transform.position, _targetBase.transform.position) < 0.5f)
                 {
+                    // Деактивируем все ресурсы
                     foreach (var res in _cargo)
-                        _targetBase.StoreResurs(res);
+                    {
+                        res.gameObject.SetActive(false);
+                    }
 
-                    _cargo = null;
+                    // Добавляем ресурсы на базу (только количество)
+                    _targetBase.ReceiveSupply(_cargo.Count);
+
+                    _cargo.Clear();
                     _haveResurs = false;
+                    _isSupplyDrone = false;
 
+                    // Переподчиняем дрона новой базе
                     TakeCommandCenter(_targetBase);
-                    TakeScanner(_scaner); // ← если переопределялся
+                    TakeScanner(_scaner);
                     TakeResurserQueue(_resursers);
                     TakePositionComandCenter(_targetBase.transform);
 
                     _targetBase = null;
                 }
+                return; // Важно: выходим из Update после обработки поставки
             }
             // 2. Есть активная цель (ресурс)
             else if (_isHaveTarget)
@@ -136,7 +145,6 @@ public class Drone : MonoBehaviour
             FreeMove();
         }
     }
-
     private IEnumerator AfterDelivery() // Метод для ожидания после доставки ресурса
     {
         _isWaiting = true; // Устанавливаем флаг ожидания
