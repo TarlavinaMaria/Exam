@@ -12,35 +12,34 @@ public class ComandCenter : MonoBehaviour
     [SerializeField] private Transform _spawnPositionDron; // Позиция спавна дронов
     [SerializeField] private Transform _droneConteiner; // Контейнер для дронов
     [SerializeField] private List<Resurs> _storage = new List<Resurs>(); // Список для хранения ресурсов на командном центре
-    [SerializeField] private ResursCounter _resursCounter; // 
-    [SerializeField] private bool _isTemplate = false;
+    [SerializeField] private ResursCounter _resursCounter; // Счетчик ресурсов на базе
+    [SerializeField] private bool _isTemplate = false; // Флаг, указывающий, является ли этот командный центр шаблоном (для создания новых баз)
 
     // Переменные
     private Queue<Resurs> _resursers = new Queue<Resurs>(); // Очередь для хранения ресурсов, которые будут обрабатываться дронами
     private Queue<Drone> _drons = new Queue<Drone>(); // Очередь для хранения дронов, которые будут выполнять задачи
     private Drone _tempDrone; // Временный дрон для обработки задач
-    private MeshRenderer _meshRenderer;
-    public bool IsReadyToExpand => _storage.Count >= 5;
-    public bool IsActive => _isBilding;
-    private ComandCenter _nextBaseTarget;
-    private bool _isSupplyingNextBase = false;
-    private int _resursToSend = 5;
-    private int _totalDrones = 0;
+    private MeshRenderer _meshRenderer; // Компонент MeshRenderer для изменения цвета командного центра
+    public bool IsReadyToExpand => _storage.Count >= 5; // Проверка, готов ли командный центр к расширению
+    public bool IsActive => _isBilding; // Проверка, активен ли командный центр
+    private ComandCenter _nextBaseTarget;  // Целевая база для поставки ресурсов
+    private int _resursToSend = 5; // Количество ресурсов для отправки на следующую базу
+    private int _totalDrones = 0; // Общее количество дронов на базе
 
     // Флаги
-    private bool _isBilding = false;
+    private bool _isBilding = false; // Флаг, указывающий, построен ли командный центр
+    private bool _isSupplyingNextBase = false; // Флаг, указывающий, идет ли поставка ресурсов на следующую базу
 
-    private void Start()
+    private void Start() // Метод Start вызывается при инициализации объекта
     {
         if (!_isTemplate)
         {
-            Builded();
+            Builded(); // Если это не шаблон, то сразу вызываем метод Builded для инициализации командного центра
         }
     }
-    private void Awake()
+    private void Awake() // Метод Awake вызывается при создании объекта
     {
-        _meshRenderer = GetComponent<MeshRenderer>();
-
+        _meshRenderer = GetComponent<MeshRenderer>(); // Получаем компонент MeshRenderer для изменения цвета командного центра
     }
     private void Update() // Метод Update вызывается каждый кадр
     {
@@ -60,23 +59,23 @@ public class ComandCenter : MonoBehaviour
             }
 
             // Проверяем, есть ли дроны и ресурсы для отправки
-            if (_drons.Count > 0)
+            if (_drons.Count > 0) 
             {
-                if (_resursers.Count > 0)
+                if (_resursers.Count > 0) // Если есть ресурсы
                 {
                     SentDron(); // Отправляем дрон к ресурсу
                 }
             }
-            if (_isSupplyingNextBase && _storage.Count >= _resursToSend)
+            if (_isSupplyingNextBase && _storage.Count >= _resursToSend) // Если поставка ресурсов на следующую базу
             {
-                _isSupplyingNextBase = false;
+                _isSupplyingNextBase = false; // Сбрасываем флаг
 
                 // Забираем 5 ресурсов
                 List<Resurs> supply = _storage.GetRange(_storage.Count - _resursToSend, _resursToSend);
-                _storage.RemoveRange(_storage.Count - _resursToSend, _resursToSend);
-                _resursCounter.RemoveResurs(_resursToSend); // если есть
+                _storage.RemoveRange(_storage.Count - _resursToSend, _resursToSend); // удаляем ресурсы
+                _resursCounter.RemoveResurs(_resursToSend); // удаляем ресурсы
 
-                // Создаём одного дрона-поставщика
+                // Создаём одного дрона-поставщика и инициализируем его
                 Drone supplierDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
                 supplierDrone.TakeCommandCenter(_nextBaseTarget);
                 supplierDrone.DeliverResursesToBase(
@@ -92,62 +91,62 @@ public class ComandCenter : MonoBehaviour
         }
     }
     // Для одиночного ресурса
-    public void StoreResurs(Resurs resurs)
+    public void StoreResurs(Resurs resurs) // Метод для хранения ресурса
     {
-        if (resurs != null)
+        if (resurs != null) // Если ресурс не null
         {
-            resurs.gameObject.SetActive(false);
+            resurs.gameObject.SetActive(false); // Скрываем ресурс
         }
 
-        _storage.Add(resurs);
-        _resursCounter.AddResurs();
+        _storage.Add(resurs); // Добавляем ресурс
+        _resursCounter.AddResurs(); // Увеличиваем счетчик ресурсов
 
-        if (!_isSupplyingNextBase && _storage.Count >= 3)
+        if (!_isSupplyingNextBase && _storage.Count >= 3) // Если поставка ресурсов на следующую базу не идет и количество ресурсов достигло 3
         {
-            CreateNewDrone();
+            CreateNewDrone(); // Создаем новый дрон
         }
     }
-    public void ChangeColor(Color color)
+    public void ChangeColor(Color color) // Метод для изменения цвета
     {
-        Material material = _meshRenderer.material;
-        material.color = color;
-        _meshRenderer.material = material;
+        Material material = _meshRenderer.material; // Получаем текущий материал
+        material.color = color; // Изменяем цвет
+        _meshRenderer.material = material; // Применяем изменения
     }
-    public void SetLayer()
+    public void SetLayer() // Метод для установки слоя
     {
-        transform.gameObject.layer = 0;
+        transform.gameObject.layer = 0; // Устанавливаем слой
     }
-    public void Builded()
+    public void Builded() // Метод для установки флага построенности
     {
-        _isBilding = true;
+        _isBilding = true; // Устанавливаем флаг
         Debug.Log($"Командный центр построен: {gameObject.name}, шаблон: {_isTemplate}");
     }
-    public void SendSupplyTo(ComandCenter targetBase)
+    public void SendSupplyTo(ComandCenter targetBase) // Метод для отправки ресурсов на следующую базу
     {
-        _nextBaseTarget = targetBase;
-        _isSupplyingNextBase = true;
+        _nextBaseTarget = targetBase; // Устанавливаем следующую базу
+        _isSupplyingNextBase = true; // Устанавливаем флаг
     }
-    public bool HasOnlyOneDrone()
+    public bool HasOnlyOneDrone() // Метод для проверки, есть ли только один дрон
     {
-        return _totalDrones <= 1;
+        return _totalDrones <= 1; // Возвращаем true, если только один дрон
     }
-    public Queue<Resurs> GetResQueue()
+    public Queue<Resurs> GetResQueue() // Метод для получения очереди ресурсов
     {
         return _resursers;
     }
-    public Scaner Scaner
+    public Scaner Scaner // Свойство для получения сканера
     {
         get
         {
             return _scaner;
         }
     }
-    public void ReceiveSupply(int resourceCount)
+    public void ReceiveSupply(int resourceCount) // Метод для получения ресурсов
     {
         // Добавляем только количество ресурсов
         for (int i = 0; i < resourceCount; i++)
         {
-            _storage.Add(null); // Или можно создать пустой Resurs
+            _storage.Add(null); 
             _resursCounter.AddResurs();
         }
 
@@ -155,7 +154,7 @@ public class ComandCenter : MonoBehaviour
 
         CheckDroneCreation();
     }
-    private void CheckDroneCreation()
+    private void CheckDroneCreation() // Метод для проверки создания дрона
     {
         // Проверяем без учёта флага поставки
         if (_storage.Count >= 3)
@@ -164,10 +163,15 @@ public class ComandCenter : MonoBehaviour
             Debug.Log($"Создан дрон на базе: {gameObject.name}. Всего дронов: {_totalDrones}");
         }
     }
-    private void CreateNewDrone(bool ignoreResources = false)
+    private void SentDron() // Метод для отправки дрона к ресурсу
     {
-        if (!ignoreResources && _storage.Count < 3) return;
-
+        _tempDrone = _drons.Dequeue(); // Извлекаем дрон из очереди
+        _tempDrone.TakeTarget(_resursers.Dequeue().transform); // Устанавливаем цель для дрона
+    }
+    private void CreateNewDrone(bool ignoreResources = false) // Метод для создания нового дрона
+    {
+        if (!ignoreResources && _storage.Count < 3) return; // Если ресурсов не достаточно, возвращаем
+        // Создаем новый дрон
         Drone newDrone = Instantiate(_dronePrefab, _spawnPositionDron.position, Quaternion.identity, _droneConteiner);
         newDrone.TakePositionComandCenter(transform);
         newDrone.TakePatrulPoint(_patrulPoint);
@@ -177,17 +181,12 @@ public class ComandCenter : MonoBehaviour
         _drons.Enqueue(newDrone);
         _totalDrones++;
 
-        if (!ignoreResources)
+        if (!ignoreResources) // Если ресурсы не игнорируются
         {
-            _storage.RemoveRange(_storage.Count - 3, 3);
-            _resursCounter.RemoveResurs(3);
+            _storage.RemoveRange(_storage.Count - 3, 3); // Удаляем ресурсы
+            _resursCounter.RemoveResurs(3); // Уменьшаем количество ресурсов
         }
 
         Debug.Log($"Создан дрон на базе: {gameObject.name}, позиция: {_spawnPositionDron.position}, текущее количество дронов: {_totalDrones}");
-    }
-    private void SentDron() // Метод для отправки дрона к ресурсу
-    {
-        _tempDrone = _drons.Dequeue(); // Извлекаем дрон из очереди
-        _tempDrone.TakeTarget(_resursers.Dequeue().transform); // Устанавливаем цель для дрона
     }
 }

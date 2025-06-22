@@ -18,6 +18,6 @@ public class Resurs : MonoBehaviour
     private IEnumerator AutoReset()
     {
         yield return new WaitForSeconds(10f); // Ждём время до сброса
-        IsIncludeFree = false;
+        StandartSetting(); // Сбрасываем флаг включения ресурса в обработку
     }
 }

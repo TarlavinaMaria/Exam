@@ -16,12 +16,10 @@ public class Scaner : MonoBehaviour
                 if (!resurses.Contains(resurs) && !resurs.IsIncludeFree)
                 {
                     resurs.SetInclude(); // помечаем как занято
-                    resurses.Enqueue(resurs);
+                    resurses.Enqueue(resurs); // Добавляем ресурс в очередь, если он ещё не включен и не находится в очереди
                 }
-
             }
         }
-
         return resurses; // Возвращаем очередь ресурсов, которые были обнаружены в радиусе сканирования
     }
     private void OnDrawGizmos() // Метод для отрисовки Gizmos в редакторе Unity, видимый только в редакторе
