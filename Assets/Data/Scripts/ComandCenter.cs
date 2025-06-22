@@ -59,7 +59,7 @@ public class ComandCenter : MonoBehaviour
             }
 
             // Проверяем, есть ли дроны и ресурсы для отправки
-            if (_drons.Count > 0) 
+            if (_drons.Count > 0)
             {
                 if (_resursers.Count > 0) // Если есть ресурсы
                 {
@@ -146,7 +146,7 @@ public class ComandCenter : MonoBehaviour
         // Добавляем только количество ресурсов
         for (int i = 0; i < resourceCount; i++)
         {
-            _storage.Add(null); 
+            _storage.Add(null);
             _resursCounter.AddResurs();
         }
 
