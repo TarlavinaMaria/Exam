@@ -58,6 +58,8 @@ public class Drone : MonoBehaviour
                     TakePositionComandCenter(_targetBase.transform);
 
                     _targetBase = null;
+                    Debug.Log($"{name}: принадлежит базе {_comandCenter.name}");
+
                 }
                 return; // Важно: выходим из Update после обработки поставки
             }

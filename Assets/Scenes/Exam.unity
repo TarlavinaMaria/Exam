@@ -658,7 +658,7 @@ MonoBehaviour:
   _endPointSpawnPosition: {fileID: 1918944262}
   _container: {fileID: 775676495}
   _prefabResurs: {fileID: 7667464603575947784, guid: cade519cdcf8682478f4c201cbb1cdbc, type: 3}
-  _delay: 0.1
+  _delay: 0.3
 --- !u!1 &1428547940
 GameObject:
   m_ObjectHideFlags: 0

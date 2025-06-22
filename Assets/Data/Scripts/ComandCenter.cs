@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -117,6 +116,7 @@ public class ComandCenter : MonoBehaviour
         _tempDrone.TakeCommandCenter(this); // Передаем ссылку на командный центр дрону
         _drons.Enqueue(_tempDrone); // Добавляем дрон в очередь дронов
         _totalDrones++;
+        Debug.Log($"Создан дрон на базе: {gameObject.name}. Всего дронов: {_totalDrones}");
     }
     // Для одиночного ресурса
     public void StoreResurs(Resurs resurs)
@@ -163,7 +163,9 @@ public class ComandCenter : MonoBehaviour
             _storage.RemoveRange(_storage.Count - 3, 3);
             _resursCounter.RemoveResurs(3);
 
-            Debug.Log("Создан новый дрон!");
+            //Debug.Log("Создан новый дрон!");
+            Debug.Log($"Создан дрон на базе: {gameObject.name}. Всего дронов: {_totalDrones}");
+
         }
     }
 
@@ -245,6 +247,7 @@ public class ComandCenter : MonoBehaviour
         if (_storage.Count >= 3)
         {
             CreateNewDrone();
+            Debug.Log($"Создан дрон на базе: {gameObject.name}. Всего дронов: {_totalDrones}");
         }
     }
 
@@ -266,7 +269,9 @@ public class ComandCenter : MonoBehaviour
         _storage.RemoveRange(_storage.Count - 3, 3);
         _resursCounter.RemoveResurs(3);
 
-        Debug.Log("Создан новый дрон! Всего дронов: " + _totalDrones);
+        Debug.Log($"[DEBUG] Создан дрон на базе: {gameObject.name}, позиция: {_spawnPositionDron.position}, текущее количество дронов: {_totalDrones}");
+
+
     }
 
 }
