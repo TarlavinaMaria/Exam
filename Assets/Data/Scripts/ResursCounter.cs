@@ -16,5 +16,4 @@ public class ResursCounter : MonoBehaviour
         if (_resursCounter < 0) _resursCounter = 0;
         _drowCounter.DrowCountResurs(_resursCounter);
     }
-
 }
